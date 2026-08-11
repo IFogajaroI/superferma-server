@@ -1,0 +1,336 @@
+Superferma local server v48-capacity-scale-fix
+----------------------------------------------
+IMPORTANT:
+  NO memory patches or probes for this test.
+  Restart game.exe before testing v48.
+
+GameSettings payload: 2879 bytes
+UserState payload: 208 bytes
+
+Protocol fix:
+  normal server response = 00 + protobuf
+  frame length includes that leading 00 byte
+
+Current GameSettings fixes retained:
+  hotbed_voc -> only id=0
+  depot_voc  -> exact Game.xml grid: 25 types x 4 levels
+  depot_field_voc -> slots 0..8 only (id=9 omitted for A/B test)
+  spade_voc -> OMITTED (client local config retained)
+  mow_machine_voc -> OMITTED (client local config retained)
+  ALL remaining fake 32-row vocab tables -> OMITTED
+  ACTION 106 -> Response(result=1)
+  UserState money -> 100
+  UserState spade -> id=1 type=0 resource_left=-1
+  UserState mow_machine -> id=2 type=0 resource_left=-1
+  max_spade_level_id/max_mow_level_id -> 0
+  ACTION 4 -> Response(result=1) [water test]
+  ACTION 203 -> full FarmField, water=120.0, fertility/crop state preserved
+  farmer_position -> (120, 330)
+  spade_position -> (92, 360)
+  mow_position -> (155, 360)
+  character id is fixed: Fogajaro / person_id=1
+  ACTION 201 -> fresh fertile digged field; water preserved; product cleared
+  grass_to_start_grow -> 300 [diagnostic timer test]
+  ACTION 202 -> FarmField(status="grow", preserved water/product, growth=0) + MowMachine
+  market_counter_voc -> 3 real/minimal rows from CounterUpInfo
+  market_shelf_type_voc -> 3 real/minimal rows from ShelfCapacity
+  ACTION 7 -> Response(result=1) [market transition test]
+  ACTION 5 -> seed_packet_id=1 + server mapping to requested product_id
+  ACTION 204 -> full FarmField(status=grow), planted product remembered
+  ALL unknown ACTIONs -> Response(result=1) [diagnostic fallback]
+  warehouse_voc -> 5 real client levels
+  EXPERIMENT: product_id=1 growth -> 30+30+30 sec (90 sec total)
+  ACTION 204/ACTION 202 start that timer and keep product_id
+  ACTION 106 growth sync suppressed for 4s after field actions
+  FarmField field3 fertil_amount -> explicit; fresh dig = 120.0
+  ACTION 201 preserves water_amount
+  CAPACITY SCALE FIX: full water=120.0; fresh fertility=120.0
+
+Expected startup:
+  ACTION 1 -> 00 + GameSettings
+  client parses GameSettings and sends ACTION 2
+  ACTION 2 -> 00 + UserState
+
+Watch both the console and game window.
+Send superferma_v48_capacity_scale_fix.log + screenshot after the test.
+
+[2026-08-11T22:07:32] TCP v48-capacity-scale-fix listening on 127.0.0.1:8866
+[2026-08-11T22:07:32] HTTP v48-capacity-scale-fix listening on 127.0.0.1:8080
+[2026-08-11T22:07:40] HTTP POST /cgi-bin/check_version.cgi
+[2026-08-11T22:07:40]   BODY version=2.29&lang=ru
+[2026-08-11T22:07:41] HTTP POST /cgi-bin/login_account.cgi
+[2026-08-11T22:07:41]   BODY email=test@test.com&version=2.29&password=***
+[2026-08-11T22:07:45] HTTP POST /cgi-bin/add_person.cgi
+[2026-08-11T22:07:45]   BODY email=test@test.com&password=***&nickname=пвап&gender=M&avatar_id=0&version=2.29
+[2026-08-11T22:07:45] *** stable character: Fogajaro / person_id=1 ***
+[2026-08-11T22:07:46] HTTP POST /cgi-bin/login_person.cgi
+[2026-08-11T22:07:46]   BODY email=test@test.com&version=2.29&password=***&person_id=1
+[2026-08-11T22:07:57]
+[2026-08-11T22:07:57] ##############################################################################
+[2026-08-11T22:07:57] ### TCP CONNECT 127.0.0.1:52354 ###
+[2026-08-11T22:07:57] ##############################################################################
+[2026-08-11T22:07:57] TCP RX 1 HEX=31
+[2026-08-11T22:07:57] TCP TX RAW DIRECT TEST: payload=1 frame=3
+[2026-08-11T22:07:57] TCP TX PREFIX=0100 HEAD=31
+[2026-08-11T22:07:57] TCP RX 14 HEX=0a084c4f43414c4b455910001801
+[2026-08-11T22:07:57] PROTO=[(1, 2, "'LOCALKEY'"), (2, 0, 0), (3, 0, 1)]
+[2026-08-11T22:07:57] REQUEST ACTION=1
+[2026-08-11T22:07:57] TCP TX GameSettings + 00 envelope: protobuf=2879 wrapped=2880 frame=2882
+[2026-08-11T22:07:57] TCP TX PREFIX=400b OPCODE=00 BODY_HEAD=080112002a21080010011d0000803f20012801350000803f3d0000803f40014801500158016001420e0800101418002000280130003800420f080110281896012001280130003800420f0802103c18f4
+[2026-08-11T22:07:57] *** ACTION 1 GameSettings SENT WITH OPCODE 00 (ALL fake-32 tables omitted) ***
+[2026-08-11T22:07:57] *** no memory patch is used ***
+[2026-08-11T22:07:57] TCP RX 16 HEX=0a084c4f43414c4b4559100018027001
+[2026-08-11T22:07:57] PROTO=[(1, 2, "'LOCALKEY'"), (2, 0, 0), (3, 0, 2), (14, 0, 1)]
+[2026-08-11T22:07:57] REQUEST ACTION=2
+[2026-08-11T22:07:57] TCP TX UserState + 00 envelope: protobuf=208 wrapped=209 frame=211
+[2026-08-11T22:07:57] TCP TX PREFIX=d100 OPCODE=00 BODY_HEAD=08011200180030008001008d010000803f980100a20108466f67616a61726faa01014db2010131ba0100c201094c6f63616c4661726dc80100d00100d80100e00164800200880200900200980200a002
+[2026-08-11T22:07:57] *** ACTION 2 UserState SENT WITH NORMAL OPCODE 00 ***
+[2026-08-11T22:07:57] *** WATCH THE GAME WINDOW ***
+[2026-08-11T22:07:57] TCP RX 6 HEX=0a001000186a
+[2026-08-11T22:07:57] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 106)]
+[2026-08-11T22:07:57] REQUEST ACTION=106
+[2026-08-11T22:07:57] TCP TX Action106 Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T22:07:57] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T22:07:57] *** ACTION 106 -> Response(result=1) SENT (no timed field yet) ***
+[2026-08-11T22:08:11] TCP RX 8 HEX=0a00100018045000
+[2026-08-11T22:08:11] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 4), (10, 0, 0)]
+[2026-08-11T22:08:11] REQUEST ACTION=4
+[2026-08-11T22:08:11] TCP TX Action4 Water Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T22:08:11] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T22:08:11] *** ACTION 4 -> Response(result=1) SENT (water test) ***
+[2026-08-11T22:08:19] TCP RX 11 HEX=0a00100018cb0138175000
+[2026-08-11T22:08:19] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 203), (7, 0, 23), (10, 0, 0)]
+[2026-08-11T22:08:19] REQUEST ACTION=203
+[2026-08-11T22:08:19] *** ACTION 203: field=23 WATER before={'status': 'grow', 'water_amount': 0.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} after={'status': 'grow', 'water_amount': 120.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} ***
+[2026-08-11T22:08:19] TCP TX Action203 Stateful Water FarmField Response + 00 envelope: protobuf=29 wrapped=30 frame=32
+[2026-08-11T22:08:19] TCP TX PREFIX=1e00 OPCODE=00 BODY_HEAD=08011a190817150000f0421d0000f04220002d00000000320467726f77
+[2026-08-11T22:08:19] *** ACTION 203 -> full FarmField with water_amount=120.0 SENT ***
+[2026-08-11T22:08:21] TCP RX 6 HEX=0a001000186a
+[2026-08-11T22:08:21] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 106)]
+[2026-08-11T22:08:21] REQUEST ACTION=106
+[2026-08-11T22:08:21] TCP TX Action106 Suppressed During Field Action + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T22:08:21] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T22:08:21] *** ACTION 106 GROWTH SYNC SUPPRESSED settle_remaining=2.14s ***
+[2026-08-11T22:08:21] TCP RX 11 HEX=0a00100018cb0138185000
+[2026-08-11T22:08:21] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 203), (7, 0, 24), (10, 0, 0)]
+[2026-08-11T22:08:21] REQUEST ACTION=203
+[2026-08-11T22:08:21] *** ACTION 203: field=24 WATER before={'status': 'grow', 'water_amount': 0.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} after={'status': 'grow', 'water_amount': 120.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} ***
+[2026-08-11T22:08:21] TCP TX Action203 Stateful Water FarmField Response + 00 envelope: protobuf=29 wrapped=30 frame=32
+[2026-08-11T22:08:21] TCP TX PREFIX=1e00 OPCODE=00 BODY_HEAD=08011a190818150000f0421d0000f04220002d00000000320467726f77
+[2026-08-11T22:08:21] *** ACTION 203 -> full FarmField with water_amount=120.0 SENT ***
+[2026-08-11T22:08:23] TCP RX 11 HEX=0a00100018cb0138205000
+[2026-08-11T22:08:23] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 203), (7, 0, 32), (10, 0, 0)]
+[2026-08-11T22:08:23] REQUEST ACTION=203
+[2026-08-11T22:08:23] *** ACTION 203: field=32 WATER before={'status': 'grow', 'water_amount': 0.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} after={'status': 'grow', 'water_amount': 120.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} ***
+[2026-08-11T22:08:23] TCP TX Action203 Stateful Water FarmField Response + 00 envelope: protobuf=29 wrapped=30 frame=32
+[2026-08-11T22:08:23] TCP TX PREFIX=1e00 OPCODE=00 BODY_HEAD=08011a190820150000f0421d0000f04220002d00000000320467726f77
+[2026-08-11T22:08:23] *** ACTION 203 -> full FarmField with water_amount=120.0 SENT ***
+[2026-08-11T22:08:26] TCP RX 11 HEX=0a00100018cb0138215000
+[2026-08-11T22:08:26] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 203), (7, 0, 33), (10, 0, 0)]
+[2026-08-11T22:08:26] REQUEST ACTION=203
+[2026-08-11T22:08:26] *** ACTION 203: field=33 WATER before={'status': 'grow', 'water_amount': 0.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} after={'status': 'grow', 'water_amount': 120.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} ***
+[2026-08-11T22:08:26] TCP TX Action203 Stateful Water FarmField Response + 00 envelope: protobuf=29 wrapped=30 frame=32
+[2026-08-11T22:08:26] TCP TX PREFIX=1e00 OPCODE=00 BODY_HEAD=08011a190821150000f0421d0000f04220002d00000000320467726f77
+[2026-08-11T22:08:26] *** ACTION 203 -> full FarmField with water_amount=120.0 SENT ***
+[2026-08-11T22:08:29] TCP RX 8 HEX=0a00100018045000
+[2026-08-11T22:08:29] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 4), (10, 0, 0)]
+[2026-08-11T22:08:29] REQUEST ACTION=4
+[2026-08-11T22:08:29] TCP TX Action4 Water Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T22:08:29] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T22:08:29] *** ACTION 4 -> Response(result=1) SENT (water test) ***
+[2026-08-11T22:08:32] TCP RX 11 HEX=0a00100018cb0138195000
+[2026-08-11T22:08:32] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 203), (7, 0, 25), (10, 0, 0)]
+[2026-08-11T22:08:32] REQUEST ACTION=203
+[2026-08-11T22:08:32] *** ACTION 203: field=25 WATER before={'status': 'grow', 'water_amount': 0.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} after={'status': 'grow', 'water_amount': 120.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} ***
+[2026-08-11T22:08:32] TCP TX Action203 Stateful Water FarmField Response + 00 envelope: protobuf=29 wrapped=30 frame=32
+[2026-08-11T22:08:32] TCP TX PREFIX=1e00 OPCODE=00 BODY_HEAD=08011a190819150000f0421d0000f04220002d00000000320467726f77
+[2026-08-11T22:08:32] *** ACTION 203 -> full FarmField with water_amount=120.0 SENT ***
+[2026-08-11T22:08:35] TCP RX 11 HEX=0a00100018cb0138225000
+[2026-08-11T22:08:35] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 203), (7, 0, 34), (10, 0, 0)]
+[2026-08-11T22:08:35] REQUEST ACTION=203
+[2026-08-11T22:08:35] *** ACTION 203: field=34 WATER before={'status': 'grow', 'water_amount': 0.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} after={'status': 'grow', 'water_amount': 120.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} ***
+[2026-08-11T22:08:35] TCP TX Action203 Stateful Water FarmField Response + 00 envelope: protobuf=29 wrapped=30 frame=32
+[2026-08-11T22:08:35] TCP TX PREFIX=1e00 OPCODE=00 BODY_HEAD=08011a190822150000f0421d0000f04220002d00000000320467726f77
+[2026-08-11T22:08:35] *** ACTION 203 -> full FarmField with water_amount=120.0 SENT ***
+[2026-08-11T22:08:37] TCP RX 11 HEX=0a00100018cb0138235000
+[2026-08-11T22:08:37] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 203), (7, 0, 35), (10, 0, 0)]
+[2026-08-11T22:08:37] REQUEST ACTION=203
+[2026-08-11T22:08:37] *** ACTION 203: field=35 WATER before={'status': 'grow', 'water_amount': 0.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} after={'status': 'grow', 'water_amount': 120.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} ***
+[2026-08-11T22:08:37] TCP TX Action203 Stateful Water FarmField Response + 00 envelope: protobuf=29 wrapped=30 frame=32
+[2026-08-11T22:08:37] TCP TX PREFIX=1e00 OPCODE=00 BODY_HEAD=08011a190823150000f0421d0000f04220002d00000000320467726f77
+[2026-08-11T22:08:37] *** ACTION 203 -> full FarmField with water_amount=120.0 SENT ***
+[2026-08-11T22:08:37] TCP RX 16 HEX=0a00100018052206088e0110ff015801
+[2026-08-11T22:08:37] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 5), (4, 2, '088e0110ff01'), (11, 0, 1)]
+[2026-08-11T22:08:37] REQUEST ACTION=5
+[2026-08-11T22:08:37] TCP TX Action5 BuySeed Response + seed_packet_id + 00 envelope: protobuf=4 wrapped=5 frame=7
+[2026-08-11T22:08:37] TCP TX PREFIX=0500 OPCODE=00 BODY_HEAD=08012801
+[2026-08-11T22:08:37] *** ACTION 5 -> seed_packet_id=1 mapped to product_id=1; seed_packets={1: 1} ***
+[2026-08-11T22:08:39] TCP RX 11 HEX=0a00100018cb01381a5000
+[2026-08-11T22:08:39] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 203), (7, 0, 26), (10, 0, 0)]
+[2026-08-11T22:08:39] REQUEST ACTION=203
+[2026-08-11T22:08:39] *** ACTION 203: field=26 WATER before={'status': 'grow', 'water_amount': 0.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} after={'status': 'grow', 'water_amount': 120.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} ***
+[2026-08-11T22:08:39] TCP TX Action203 Stateful Water FarmField Response + 00 envelope: protobuf=29 wrapped=30 frame=32
+[2026-08-11T22:08:39] TCP TX PREFIX=1e00 OPCODE=00 BODY_HEAD=08011a19081a150000f0421d0000f04220002d00000000320467726f77
+[2026-08-11T22:08:39] *** ACTION 203 -> full FarmField with water_amount=120.0 SENT ***
+[2026-08-11T22:08:41] TCP RX 6 HEX=0a001000186a
+[2026-08-11T22:08:41] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 106)]
+[2026-08-11T22:08:41] REQUEST ACTION=106
+[2026-08-11T22:08:41] TCP TX Action106 Suppressed During Field Action + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T22:08:41] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T22:08:41] *** ACTION 106 GROWTH SYNC SUPPRESSED settle_remaining=1.84s ***
+[2026-08-11T22:08:44] TCP RX 11 HEX=0a00100018c90138174001
+[2026-08-11T22:08:44] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 201), (7, 0, 23), (8, 0, 1)]
+[2026-08-11T22:08:44] REQUEST ACTION=201
+[2026-08-11T22:08:44] *** ACTION 201: field=23 DIG before={'status': 'grow', 'water_amount': 120.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} after={'status': 'digged', 'water_amount': 120.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} ***
+[2026-08-11T22:08:44] TCP TX Action201 Stateful Dig FarmField Response + 00 envelope: protobuf=31 wrapped=32 frame=34
+[2026-08-11T22:08:44] TCP TX PREFIX=2000 OPCODE=00 BODY_HEAD=08011a1b0817150000f0421d0000f04220002d000000003206646967676564
+[2026-08-11T22:08:44] *** ACTION 201 -> fresh fertile FarmField(status=digged); water preserved ***
+[2026-08-11T22:08:48] TCP RX 11 HEX=0a00100018c90138204001
+[2026-08-11T22:08:48] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 201), (7, 0, 32), (8, 0, 1)]
+[2026-08-11T22:08:48] REQUEST ACTION=201
+[2026-08-11T22:08:48] *** ACTION 201: field=32 DIG before={'status': 'grow', 'water_amount': 120.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} after={'status': 'digged', 'water_amount': 120.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} ***
+[2026-08-11T22:08:48] TCP TX Action201 Stateful Dig FarmField Response + 00 envelope: protobuf=31 wrapped=32 frame=34
+[2026-08-11T22:08:48] TCP TX PREFIX=2000 OPCODE=00 BODY_HEAD=08011a1b0820150000f0421d0000f04220002d000000003206646967676564
+[2026-08-11T22:08:48] *** ACTION 201 -> fresh fertile FarmField(status=digged); water preserved ***
+[2026-08-11T22:08:51] TCP RX 11 HEX=0a00100018c90138214001
+[2026-08-11T22:08:51] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 201), (7, 0, 33), (8, 0, 1)]
+[2026-08-11T22:08:51] REQUEST ACTION=201
+[2026-08-11T22:08:51] *** ACTION 201: field=33 DIG before={'status': 'grow', 'water_amount': 120.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} after={'status': 'digged', 'water_amount': 120.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} ***
+[2026-08-11T22:08:51] TCP TX Action201 Stateful Dig FarmField Response + 00 envelope: protobuf=31 wrapped=32 frame=34
+[2026-08-11T22:08:51] TCP TX PREFIX=2000 OPCODE=00 BODY_HEAD=08011a1b0821150000f0421d0000f04220002d000000003206646967676564
+[2026-08-11T22:08:51] *** ACTION 201 -> fresh fertile FarmField(status=digged); water preserved ***
+[2026-08-11T22:08:55] TCP RX 11 HEX=0a00100018c90138184001
+[2026-08-11T22:08:55] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 201), (7, 0, 24), (8, 0, 1)]
+[2026-08-11T22:08:55] REQUEST ACTION=201
+[2026-08-11T22:08:55] *** ACTION 201: field=24 DIG before={'status': 'grow', 'water_amount': 120.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} after={'status': 'digged', 'water_amount': 120.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} ***
+[2026-08-11T22:08:55] TCP TX Action201 Stateful Dig FarmField Response + 00 envelope: protobuf=31 wrapped=32 frame=34
+[2026-08-11T22:08:55] TCP TX PREFIX=2000 OPCODE=00 BODY_HEAD=08011a1b0818150000f0421d0000f04220002d000000003206646967676564
+[2026-08-11T22:08:55] *** ACTION 201 -> fresh fertile FarmField(status=digged); water preserved ***
+[2026-08-11T22:09:01] TCP RX 11 HEX=0a00100018cc0138176001
+[2026-08-11T22:09:01] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 204), (7, 0, 23), (12, 0, 1)]
+[2026-08-11T22:09:01] REQUEST ACTION=204
+[2026-08-11T22:09:01] *** ACTION 204: field=23 SOW seed_packet=1 product_id=1 before={'status': 'digged', 'water_amount': 120.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} after={'status': 'grow', 'water_amount': 120.0, 'fertil_amount': 120.0, 'product_id': 1, 'percent_growth': 0.0, 'growth_started_at': 557280.629747} ***
+[2026-08-11T22:09:01] TCP TX Action204 Stateful Sow FarmField Response + 00 envelope: protobuf=29 wrapped=30 frame=32
+[2026-08-11T22:09:01] TCP TX PREFIX=1e00 OPCODE=00 BODY_HEAD=08011a190817150000f0421d0000f04220012d00000000320467726f77
+[2026-08-11T22:09:01] *** ACTION 204 -> full FarmField(status=grow) SENT ***
+[2026-08-11T22:09:01] TCP RX 6 HEX=0a001000186a
+[2026-08-11T22:09:01] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 106)]
+[2026-08-11T22:09:01] REQUEST ACTION=106
+[2026-08-11T22:09:01] TCP TX Action106 Suppressed During Field Action + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T22:09:01] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T22:09:01] *** ACTION 106 GROWTH SYNC SUPPRESSED settle_remaining=3.48s ***
+[2026-08-11T22:09:02] TCP RX 11 HEX=0a00100018cc0138206001
+[2026-08-11T22:09:02] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 204), (7, 0, 32), (12, 0, 1)]
+[2026-08-11T22:09:02] REQUEST ACTION=204
+[2026-08-11T22:09:02] *** ACTION 204: field=32 SOW seed_packet=1 product_id=1 before={'status': 'digged', 'water_amount': 120.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} after={'status': 'grow', 'water_amount': 120.0, 'fertil_amount': 120.0, 'product_id': 1, 'percent_growth': 0.0, 'growth_started_at': 557281.8670335} ***
+[2026-08-11T22:09:02] TCP TX Action204 Stateful Sow FarmField Response + 00 envelope: protobuf=29 wrapped=30 frame=32
+[2026-08-11T22:09:02] TCP TX PREFIX=1e00 OPCODE=00 BODY_HEAD=08011a190820150000f0421d0000f04220012d00000000320467726f77
+[2026-08-11T22:09:02] *** ACTION 204 -> full FarmField(status=grow) SENT ***
+[2026-08-11T22:09:03] TCP RX 11 HEX=0a00100018cc0138186001
+[2026-08-11T22:09:03] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 204), (7, 0, 24), (12, 0, 1)]
+[2026-08-11T22:09:03] REQUEST ACTION=204
+[2026-08-11T22:09:03] *** ACTION 204: field=24 SOW seed_packet=1 product_id=1 before={'status': 'digged', 'water_amount': 120.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} after={'status': 'grow', 'water_amount': 120.0, 'fertil_amount': 120.0, 'product_id': 1, 'percent_growth': 0.0, 'growth_started_at': 557283.2528558} ***
+[2026-08-11T22:09:03] TCP TX Action204 Stateful Sow FarmField Response + 00 envelope: protobuf=29 wrapped=30 frame=32
+[2026-08-11T22:09:03] TCP TX PREFIX=1e00 OPCODE=00 BODY_HEAD=08011a190818150000f0421d0000f04220012d00000000320467726f77
+[2026-08-11T22:09:03] *** ACTION 204 -> full FarmField(status=grow) SENT ***
+[2026-08-11T22:09:05] TCP RX 11 HEX=0a00100018cc0138216001
+[2026-08-11T22:09:05] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 204), (7, 0, 33), (12, 0, 1)]
+[2026-08-11T22:09:05] REQUEST ACTION=204
+[2026-08-11T22:09:05] *** ACTION 204: field=33 SOW seed_packet=1 product_id=1 before={'status': 'digged', 'water_amount': 120.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} after={'status': 'grow', 'water_amount': 120.0, 'fertil_amount': 120.0, 'product_id': 1, 'percent_growth': 0.0, 'growth_started_at': 557284.6160337} ***
+[2026-08-11T22:09:05] TCP TX Action204 Stateful Sow FarmField Response + 00 envelope: protobuf=29 wrapped=30 frame=32
+[2026-08-11T22:09:05] TCP TX PREFIX=1e00 OPCODE=00 BODY_HEAD=08011a190821150000f0421d0000f04220012d00000000320467726f77
+[2026-08-11T22:09:05] *** ACTION 204 -> full FarmField(status=grow) SENT ***
+[2026-08-11T22:09:08] TCP RX 8 HEX=0a00100018045000
+[2026-08-11T22:09:08] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 4), (10, 0, 0)]
+[2026-08-11T22:09:08] REQUEST ACTION=4
+[2026-08-11T22:09:08] TCP TX Action4 Water Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T22:09:08] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T22:09:08] *** ACTION 4 -> Response(result=1) SENT (water test) ***
+[2026-08-11T22:09:13] TCP RX 11 HEX=0a00100018cb01381b5000
+[2026-08-11T22:09:13] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 203), (7, 0, 27), (10, 0, 0)]
+[2026-08-11T22:09:13] REQUEST ACTION=203
+[2026-08-11T22:09:13] *** ACTION 203: field=27 WATER before={'status': 'grow', 'water_amount': 0.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} after={'status': 'grow', 'water_amount': 120.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} ***
+[2026-08-11T22:09:13] TCP TX Action203 Stateful Water FarmField Response + 00 envelope: protobuf=29 wrapped=30 frame=32
+[2026-08-11T22:09:13] TCP TX PREFIX=1e00 OPCODE=00 BODY_HEAD=08011a19081b150000f0421d0000f04220002d00000000320467726f77
+[2026-08-11T22:09:13] *** ACTION 203 -> full FarmField with water_amount=120.0 SENT ***
+[2026-08-11T22:09:15] TCP RX 11 HEX=0a00100018cb0138245000
+[2026-08-11T22:09:15] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 203), (7, 0, 36), (10, 0, 0)]
+[2026-08-11T22:09:15] REQUEST ACTION=203
+[2026-08-11T22:09:15] *** ACTION 203: field=36 WATER before={'status': 'grow', 'water_amount': 0.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} after={'status': 'grow', 'water_amount': 120.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} ***
+[2026-08-11T22:09:15] TCP TX Action203 Stateful Water FarmField Response + 00 envelope: protobuf=29 wrapped=30 frame=32
+[2026-08-11T22:09:15] TCP TX PREFIX=1e00 OPCODE=00 BODY_HEAD=08011a190824150000f0421d0000f04220002d00000000320467726f77
+[2026-08-11T22:09:15] *** ACTION 203 -> full FarmField with water_amount=120.0 SENT ***
+[2026-08-11T22:09:21] TCP RX 6 HEX=0a001000186a
+[2026-08-11T22:09:21] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 106)]
+[2026-08-11T22:09:21] REQUEST ACTION=106
+[2026-08-11T22:09:21] *** ACTION 106 GROWTH SYNC field=33 product=1 elapsed=16.5s/90.0 percent=0.1839 water=120.000 fertil=120.000 ***
+[2026-08-11T22:09:21] TCP TX Action106 Growth FarmField Response + 00 envelope: protobuf=29 wrapped=30 frame=32
+[2026-08-11T22:09:21] TCP TX PREFIX=1e00 OPCODE=00 BODY_HEAD=08011a190821150000f0421d0000f04220012d12463c3e320467726f77
+[2026-08-11T22:09:42] TCP RX 11 HEX=0a00100018ca0138194802
+[2026-08-11T22:09:42] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 202), (7, 0, 25), (9, 0, 2)]
+[2026-08-11T22:09:42] REQUEST ACTION=202
+[2026-08-11T22:09:42] *** ACTION 202: field=25 MOW mower=2 duplicate=False grass_count=1 before={'status': 'grow', 'water_amount': 120.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} after={'status': 'grow', 'water_amount': 120.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} ***
+[2026-08-11T22:09:42] TCP TX Action202 Stateful Mow FarmField+MowMachine Response + 00 envelope: protobuf=41 wrapped=42frame=44
+[2026-08-11T22:09:42] TCP TX PREFIX=2a00 OPCODE=00 BODY_HEAD=08011a190819150000f0421d0000f04220002d00000000320467726f77320a080210002a0408001001
+[2026-08-11T22:09:42] *** ACTION 202 -> plant preserved; growth reset; mower updated ***
+[2026-08-11T22:09:43] TCP RX 6 HEX=0a001000186a
+[2026-08-11T22:09:43] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 106)]
+[2026-08-11T22:09:43] REQUEST ACTION=106
+[2026-08-11T22:09:43] TCP TX Action106 Suppressed During Field Action + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T22:09:43] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T22:09:43] *** ACTION 106 GROWTH SYNC SUPPRESSED settle_remaining=3.50s ***
+[2026-08-11T22:09:46] TCP RX 11 HEX=0a00100018ca0138224802
+[2026-08-11T22:09:46] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 202), (7, 0, 34), (9, 0, 2)]
+[2026-08-11T22:09:46] REQUEST ACTION=202
+[2026-08-11T22:09:46] *** ACTION 202: field=34 MOW mower=2 duplicate=False grass_count=2 before={'status': 'grow', 'water_amount': 120.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} after={'status': 'grow', 'water_amount': 120.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} ***
+[2026-08-11T22:09:46] TCP TX Action202 Stateful Mow FarmField+MowMachine Response + 00 envelope: protobuf=41 wrapped=42frame=44
+[2026-08-11T22:09:46] TCP TX PREFIX=2a00 OPCODE=00 BODY_HEAD=08011a190822150000f0421d0000f04220002d00000000320467726f77320a080210002a0408001002
+[2026-08-11T22:09:46] *** ACTION 202 -> plant preserved; growth reset; mower updated ***
+[2026-08-11T22:09:49] TCP RX 11 HEX=0a00100018ca01381a4802
+[2026-08-11T22:09:49] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 202), (7, 0, 26), (9, 0, 2)]
+[2026-08-11T22:09:49] REQUEST ACTION=202
+[2026-08-11T22:09:49] *** ACTION 202: field=26 MOW mower=2 duplicate=False grass_count=3 before={'status': 'grow', 'water_amount': 120.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} after={'status': 'grow', 'water_amount': 120.0, 'fertil_amount': 120.0, 'product_id': 0, 'percent_growth': 0.0, 'growth_started_at': None} ***
+[2026-08-11T22:09:49] TCP TX Action202 Stateful Mow FarmField+MowMachine Response + 00 envelope: protobuf=41 wrapped=42frame=44
+[2026-08-11T22:09:49] TCP TX PREFIX=2a00 OPCODE=00 BODY_HEAD=08011a19081a150000f0421d0000f04220002d00000000320467726f77320a080210002a0408001003
+[2026-08-11T22:09:49] *** ACTION 202 -> plant preserved; growth reset; mower updated ***
+[2026-08-11T22:09:54] TCP RX 8 HEX=0a00100018074802
+[2026-08-11T22:09:54] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 7), (9, 0, 2)]
+[2026-08-11T22:09:54] REQUEST ACTION=7
+[2026-08-11T22:09:54] TCP TX Action7 Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T22:09:54] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T22:09:54] *** ACTION 7 -> Response(result=1) SENT (market transition test) ***
+[2026-08-11T22:10:03] TCP RX 6 HEX=0a001000186a
+[2026-08-11T22:10:03] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 106)]
+[2026-08-11T22:10:03] REQUEST ACTION=106
+[2026-08-11T22:10:03] *** ACTION 106 GROWTH SYNC field=33 product=1 elapsed=58.4s/90.0 percent=0.6486 water=120.000 fertil=120.000 ***
+[2026-08-11T22:10:03] TCP TX Action106 Growth FarmField Response + 00 envelope: protobuf=29 wrapped=30 frame=32
+[2026-08-11T22:10:03] TCP TX PREFIX=1e00 OPCODE=00 BODY_HEAD=08011a190821150000f0421d0000f04220012d9b07263f320467726f77
+[2026-08-11T22:10:08] TCP RX 10 HEX=0a001000189403e80100
+[2026-08-11T22:10:08] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 404), (29, 0, 0)]
+[2026-08-11T22:10:08] REQUEST ACTION=404
+[2026-08-11T22:10:08]
+[2026-08-11T22:10:08] !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+[2026-08-11T22:10:08] *** UNKNOWN ACTION -> TEST SUCCESS FALLBACK ***
+[2026-08-11T22:10:08] *** ACTION=404 ***
+[2026-08-11T22:10:08] !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+[2026-08-11T22:10:08] TCP TX Action404 Generic Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T22:10:08] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T22:10:08] *** ACTION 404 -> Response(result=1) SENT (GENERIC TEST FALLBACK) ***
+[2026-08-11T22:10:24] TCP RX 6 HEX=0a001000186a
+[2026-08-11T22:10:24] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 106)]
+[2026-08-11T22:10:24] REQUEST ACTION=106
+[2026-08-11T22:10:24] *** ACTION 106 GROWTH SYNC field=33 product=1 elapsed=79.6s/90.0 percent=0.8844 water=120.000 fertil=120.000 ***
+[2026-08-11T22:10:24] TCP TX Action106 Growth FarmField Response + 00 envelope: protobuf=29 wrapped=30 frame=32
+[2026-08-11T22:10:24] TCP TX PREFIX=1e00 OPCODE=00 BODY_HEAD=08011a190821150000f0421d0000f04220012dc365623f320467726f77
+[2026-08-11T22:10:31] TCP RX 404 HEX=0a084c4f43414c4b455910001800220608c20110b001a202b30132363b303b333b303b303b303b303b303b303b303b303b333b303b303b303b303b303b313132353330353137353b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b38303b303b303b38303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b313132353330353137353b303b303b303b303baa02c30139363b303b303b313b313b313b313b313b313b313b313b313b313b313b313b303b303b303b303b303b303b313b313b313b313b313b313b313b313b313b313b313b313b303b303b303b303b303b303b303b303b303b303b303b303b303b313b303b303b303b303b303b303b303b303b303b303b303b313b303b303b303b303b303b313b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b303b
+[2026-08-11T22:10:31] PROTO=[(1, 2, "'LOCALKEY'"), (2, 0, 0), (3, 0, 0), (4, 2, '08c20110b001'), (36, 2, "'26;0;3;0;0;0;0;0;0;0;0;3;0;0;0;0;0;1125305175;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;80;0;0;80;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1125305175;0;0;0;0;'"), (37, 2, "'96;0;0;1;1;1;1;1;1;1;1;1;1;1;1;0;0;0;0;0;0;1;1;1;1;1;1;1;1;1;1;1;1;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;1;0;0;0;0;0;1;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;'")]
+[2026-08-11T22:10:31] REQUEST ACTION=0
+[2026-08-11T22:10:31]
+[2026-08-11T22:10:31] !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+[2026-08-11T22:10:31] *** UNKNOWN ACTION -> TEST SUCCESS FALLBACK ***
+[2026-08-11T22:10:31] *** ACTION=0 ***
+[2026-08-11T22:10:31] !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+[2026-08-11T22:10:31] TCP TX Action0 Generic Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T22:10:31] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T22:10:31] *** ACTION 0 -> Response(result=1) SENT (GENERIC TEST FALLBACK) ***
+[2026-08-11T22:10:32] TCP DISCONNECT
