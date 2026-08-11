@@ -26,12 +26,25 @@ Do not use as baseline.
 
 ### v44 — `stub_server_v44_mow_isolated_test.py`
 
-Current isolated mower experiment.
+Previous isolated mower experiment.
 
 - based on stable v42
 - timer 300 retained
 - mower count/dedup state added
 - game does not crash
-- mowing currently sends `status="digged"`, which is proven wrong because harvesting should not remove the plant
+- mowing sends `status="digged"`, proven wrong because harvesting should not remove the plant
 
-Next experimental version should implement persistent per-field state before city work resumes.
+### v45 — `stub_server_v45_stateful_fields_test.py`
+
+Current stateful farm-field experiment.
+
+- keeps v44 GameSettings/UserState baseline and `grass_to_start_grow = 300`
+- ACTION 201 resets one field to a clean `digged` state
+- ACTION 5 remembers which `product_id` belongs to returned `seed_packet_id=1`
+- ACTION 204 stores planted `product_id`, sets `status="grow"`, and resets `percent_growth=0`
+- ACTION 203 sets `water_amount=1.0` while preserving product/growth/status
+- ACTION 202 preserves water/product, keeps `status="grow"`, resets only growth stage, and updates MowMachine product count
+- immediate duplicate mower packets are suppressed for one second only
+- ACTION 404 remains untouched
+
+Test v45 before promoting any part of it to stable.
