@@ -1,0 +1,497 @@
+Superferma local server v44-mow-isolated-test
+----------------------------------------------
+IMPORTANT:
+  NO memory patches or probes for this test.
+  Restart game.exe before testing v44.
+
+GameSettings payload: 2879 bytes
+UserState payload: 208 bytes
+
+Protocol fix:
+  normal server response = 00 + protobuf
+  frame length includes that leading 00 byte
+
+Current GameSettings fixes retained:
+  hotbed_voc -> only id=0
+  depot_voc  -> exact Game.xml grid: 25 types x 4 levels
+  depot_field_voc -> slots 0..8 only (id=9 omitted for A/B test)
+  spade_voc -> OMITTED (client local config retained)
+  mow_machine_voc -> OMITTED (client local config retained)
+  ALL remaining fake 32-row vocab tables -> OMITTED
+  ACTION 106 -> Response(result=1)
+  UserState money -> 100
+  UserState spade -> id=1 type=0 resource_left=-1
+  UserState mow_machine -> id=2 type=0 resource_left=-1
+  max_spade_level_id/max_mow_level_id -> 0
+  ACTION 4 -> Response(result=1) [water test]
+  ACTION 203 -> Response(result=1) [water test]
+  farmer_position -> (120, 330)
+  spade_position -> (92, 360)
+  mow_position -> (155, 360)
+  character id is fixed: Fogajaro / person_id=1
+  ACTION 201 -> Response(result=1, FarmField status="digged")
+  grass_to_start_grow -> 300 [diagnostic timer test]
+  ACTION 202 -> FarmField(status="digged") + MowMachine grass count [isolated test]
+  market_counter_voc -> 3 real/minimal rows from CounterUpInfo
+  market_shelf_type_voc -> 3 real/minimal rows from ShelfCapacity
+  ACTION 7 -> Response(result=1) [market transition test]
+  ACTION 5 -> Response(result=1, seed_packet_id=1)
+  ALL unknown ACTIONs -> Response(result=1) [diagnostic fallback]
+  warehouse_voc -> 5 real client levels
+
+Expected startup:
+  ACTION 1 -> 00 + GameSettings
+  client parses GameSettings and sends ACTION 2
+  ACTION 2 -> 00 + UserState
+
+Watch both the console and game window.
+Send superferma_v44_mow_isolated_test.log + screenshot if anything changes.
+
+[2026-08-11T17:58:31] TCP v44-mow-isolated-test listening on 127.0.0.1:8866
+[2026-08-11T17:58:31] HTTP v44-mow-isolated-test listening on 127.0.0.1:8080
+[2026-08-11T17:58:43] HTTP POST /cgi-bin/check_version.cgi
+[2026-08-11T17:58:43]   BODY version=2.29&lang=ru
+[2026-08-11T17:58:49] HTTP POST /cgi-bin/login_account.cgi
+[2026-08-11T17:58:49]   BODY email=test@test.com&version=2.29&password=***
+[2026-08-11T17:58:54] HTTP POST /cgi-bin/add_person.cgi
+[2026-08-11T17:58:54]   BODY email=test@test.com&password=***&nickname=666&gender=M&avatar_id=0&version=2.29
+[2026-08-11T17:58:54] *** stable character: Fogajaro / person_id=1 ***
+[2026-08-11T17:58:55] HTTP POST /cgi-bin/login_person.cgi
+[2026-08-11T17:58:55]   BODY email=test@test.com&version=2.29&password=***&person_id=1
+[2026-08-11T17:59:05]
+[2026-08-11T17:59:05] ##############################################################################
+[2026-08-11T17:59:05] ### TCP CONNECT 127.0.0.1:59006 ###
+[2026-08-11T17:59:06] ##############################################################################
+[2026-08-11T17:59:06] TCP RX 1 HEX=31
+[2026-08-11T17:59:06] TCP TX RAW DIRECT TEST: payload=1 frame=3
+[2026-08-11T17:59:06] TCP TX PREFIX=0100 HEAD=31
+[2026-08-11T17:59:06] TCP RX 14 HEX=0a084c4f43414c4b455910001801
+[2026-08-11T17:59:06] PROTO=[(1, 2, "'LOCALKEY'"), (2, 0, 0), (3, 0, 1)]
+[2026-08-11T17:59:06] REQUEST ACTION=1
+[2026-08-11T17:59:06] TCP TX GameSettings + 00 envelope: protobuf=2879 wrapped=2880 frame=2882
+[2026-08-11T17:59:06] TCP TX PREFIX=400b OPCODE=00 BODY_HEAD=080112002a21080010011d0000803f20012801350000803f3d0000803f40014801500158016001420e0800101418002000280130003800420f080110281896012001280130003800420f0802103c18f4
+[2026-08-11T17:59:06] *** ACTION 1 GameSettings SENT WITH OPCODE 00 (ALL fake-32 tables omitted) ***
+[2026-08-11T17:59:06] *** no memory patch is used ***
+[2026-08-11T17:59:06] TCP RX 16 HEX=0a084c4f43414c4b4559100018027001
+[2026-08-11T17:59:06] PROTO=[(1, 2, "'LOCALKEY'"), (2, 0, 0), (3, 0, 2), (14, 0, 1)]
+[2026-08-11T17:59:06] REQUEST ACTION=2
+[2026-08-11T17:59:06] TCP TX UserState + 00 envelope: protobuf=208 wrapped=209 frame=211
+[2026-08-11T17:59:06] TCP TX PREFIX=d100 OPCODE=00 BODY_HEAD=08011200180030008001008d010000803f980100a20108466f67616a61726faa01014db2010131ba0100c201094c6f63616c4661726dc80100d00100d80100e00164800200880200900200980200a002
+[2026-08-11T17:59:06] *** ACTION 2 UserState SENT WITH NORMAL OPCODE 00 ***
+[2026-08-11T17:59:06] *** WATCH THE GAME WINDOW ***
+[2026-08-11T17:59:06] TCP RX 6 HEX=0a001000186a
+[2026-08-11T17:59:06] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 106)]
+[2026-08-11T17:59:06] REQUEST ACTION=106
+[2026-08-11T17:59:06] TCP TX Action106 Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T17:59:06] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T17:59:06] *** ACTION 106 -> Response(result=1) SENT ***
+[2026-08-11T17:59:15] TCP RX 16 HEX=0a001000180522060883011093025801
+[2026-08-11T17:59:15] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 5), (4, 2, '088301109302'), (11, 0, 1)]
+[2026-08-11T17:59:15] REQUEST ACTION=5
+[2026-08-11T17:59:15] TCP TX Action5 BuySeed Response + seed_packet_id + 00 envelope: protobuf=4 wrapped=5 frame=7
+[2026-08-11T17:59:15] TCP TX PREFIX=0500 OPCODE=00 BODY_HEAD=08012801
+[2026-08-11T17:59:15] *** ACTION 5 -> Response(result=1, seed_packet_id=1) SENT ***
+[2026-08-11T17:59:15] TCP RX 8 HEX=0a00100018045000
+[2026-08-11T17:59:15] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 4), (10, 0, 0)]
+[2026-08-11T17:59:15] REQUEST ACTION=4
+[2026-08-11T17:59:15] TCP TX Action4 Water Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T17:59:15] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T17:59:15] *** ACTION 4 -> Response(result=1) SENT (water test) ***
+[2026-08-11T17:59:20] TCP RX 11 HEX=0a00100018cb0138175000
+[2026-08-11T17:59:20] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 203), (7, 0, 23), (10, 0, 0)]
+[2026-08-11T17:59:20] REQUEST ACTION=203
+[2026-08-11T17:59:20] TCP TX Action203 Watered Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T17:59:20] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T17:59:20] *** ACTION 203 -> Response(result=1) SENT (water test) ***
+[2026-08-11T17:59:22] TCP RX 11 HEX=0a00100018cb0138205000
+[2026-08-11T17:59:22] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 203), (7, 0, 32), (10, 0, 0)]
+[2026-08-11T17:59:22] REQUEST ACTION=203
+[2026-08-11T17:59:22] TCP TX Action203 Watered Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T17:59:22] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T17:59:22] *** ACTION 203 -> Response(result=1) SENT (water test) ***
+[2026-08-11T17:59:24] TCP RX 11 HEX=0a00100018cb0138215000
+[2026-08-11T17:59:24] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 203), (7, 0, 33), (10, 0, 0)]
+[2026-08-11T17:59:24] REQUEST ACTION=203
+[2026-08-11T17:59:24] TCP TX Action203 Watered Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T17:59:24] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T17:59:24] *** ACTION 203 -> Response(result=1) SENT (water test) ***
+[2026-08-11T17:59:26] TCP RX 11 HEX=0a00100018cb0138185000
+[2026-08-11T17:59:26] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 203), (7, 0, 24), (10, 0, 0)]
+[2026-08-11T17:59:26] REQUEST ACTION=203
+[2026-08-11T17:59:26] TCP TX Action203 Watered Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T17:59:26] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T17:59:26] *** ACTION 203 -> Response(result=1) SENT (water test) ***
+[2026-08-11T17:59:28] TCP RX 6 HEX=0a001000186a
+[2026-08-11T17:59:28] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 106)]
+[2026-08-11T17:59:28] REQUEST ACTION=106
+[2026-08-11T17:59:28] TCP TX Action106 Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T17:59:28] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T17:59:28] *** ACTION 106 -> Response(result=1) SENT ***
+[2026-08-11T17:59:31] TCP RX 11 HEX=0a00100018c90138194001
+[2026-08-11T17:59:31] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 201), (7, 0, 25), (8, 0, 1)]
+[2026-08-11T17:59:31] REQUEST ACTION=201
+[2026-08-11T17:59:31] *** ACTION 201: returning farm_field id=25, status="digged" ***
+[2026-08-11T17:59:31] TCP TX Action201 Digged FarmField Response + 00 envelope: protobuf=14 wrapped=15 frame=17
+[2026-08-11T17:59:31] TCP TX PREFIX=0f00 OPCODE=00 BODY_HEAD=08011a0a08193206646967676564
+[2026-08-11T17:59:31] *** ACTION 201 -> Response(result=1, farm_field.status="digged") SENT ***
+[2026-08-11T17:59:35] TCP RX 11 HEX=0a00100018c90138184001
+[2026-08-11T17:59:35] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 201), (7, 0, 24), (8, 0, 1)]
+[2026-08-11T17:59:35] REQUEST ACTION=201
+[2026-08-11T17:59:35] *** ACTION 201: returning farm_field id=24, status="digged" ***
+[2026-08-11T17:59:35] TCP TX Action201 Digged FarmField Response + 00 envelope: protobuf=14 wrapped=15 frame=17
+[2026-08-11T17:59:35] TCP TX PREFIX=0f00 OPCODE=00 BODY_HEAD=08011a0a08183206646967676564
+[2026-08-11T17:59:35] *** ACTION 201 -> Response(result=1, farm_field.status="digged") SENT ***
+[2026-08-11T17:59:42] TCP RX 11 HEX=0a00100018cc0138186001
+[2026-08-11T17:59:42] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 204), (7, 0, 24), (12, 0, 1)]
+[2026-08-11T17:59:42] REQUEST ACTION=204
+[2026-08-11T17:59:42]
+[2026-08-11T17:59:42] !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+[2026-08-11T17:59:42] *** UNKNOWN ACTION -> TEST SUCCESS FALLBACK ***
+[2026-08-11T17:59:42] *** ACTION=204 ***
+[2026-08-11T17:59:42] !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+[2026-08-11T17:59:42] TCP TX Action204 Generic Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T17:59:42] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T17:59:42] *** ACTION 204 -> Response(result=1) SENT (GENERIC TEST FALLBACK) ***
+[2026-08-11T17:59:43] TCP RX 11 HEX=0a00100018cc0138196001
+[2026-08-11T17:59:43] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 204), (7, 0, 25), (12, 0, 1)]
+[2026-08-11T17:59:43] REQUEST ACTION=204
+[2026-08-11T17:59:43]
+[2026-08-11T17:59:43] !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+[2026-08-11T17:59:43] *** UNKNOWN ACTION -> TEST SUCCESS FALLBACK ***
+[2026-08-11T17:59:43] *** ACTION=204 ***
+[2026-08-11T17:59:43] !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+[2026-08-11T17:59:43] TCP TX Action204 Generic Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T17:59:43] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T17:59:43] *** ACTION 204 -> Response(result=1) SENT (GENERIC TEST FALLBACK) ***
+[2026-08-11T17:59:47] TCP RX 8 HEX=0a00100018045000
+[2026-08-11T17:59:47] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 4), (10, 0, 0)]
+[2026-08-11T17:59:47] REQUEST ACTION=4
+[2026-08-11T17:59:47] TCP TX Action4 Water Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T17:59:47] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T17:59:47] *** ACTION 4 -> Response(result=1) SENT (water test) ***
+[2026-08-11T17:59:49] TCP RX 6 HEX=0a001000186a
+[2026-08-11T17:59:49] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 106)]
+[2026-08-11T17:59:49] REQUEST ACTION=106
+[2026-08-11T17:59:49] TCP TX Action106 Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T17:59:49] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T17:59:49] *** ACTION 106 -> Response(result=1) SENT ***
+[2026-08-11T17:59:50] TCP RX 11 HEX=0a00100018cb0138185000
+[2026-08-11T17:59:50] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 203), (7, 0, 24), (10, 0, 0)]
+[2026-08-11T17:59:50] REQUEST ACTION=203
+[2026-08-11T17:59:50] TCP TX Action203 Watered Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T17:59:50] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T17:59:50] *** ACTION 203 -> Response(result=1) SENT (water test) ***
+[2026-08-11T17:59:53] TCP RX 11 HEX=0a00100018cb0138195000
+[2026-08-11T17:59:53] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 203), (7, 0, 25), (10, 0, 0)]
+[2026-08-11T17:59:53] REQUEST ACTION=203
+[2026-08-11T17:59:53] TCP TX Action203 Watered Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T17:59:53] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T17:59:53] *** ACTION 203 -> Response(result=1) SENT (water test) ***
+[2026-08-11T17:59:55] TCP RX 11 HEX=0a00100018cb0138225000
+[2026-08-11T17:59:55] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 203), (7, 0, 34), (10, 0, 0)]
+[2026-08-11T17:59:55] REQUEST ACTION=203
+[2026-08-11T17:59:55] TCP TX Action203 Watered Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T17:59:55] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T17:59:55] *** ACTION 203 -> Response(result=1) SENT (water test) ***
+[2026-08-11T17:59:57] TCP RX 11 HEX=0a00100018cb0138235000
+[2026-08-11T17:59:57] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 203), (7, 0, 35), (10, 0, 0)]
+[2026-08-11T17:59:57] REQUEST ACTION=203
+[2026-08-11T17:59:57] TCP TX Action203 Watered Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T17:59:57] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T17:59:57] *** ACTION 203 -> Response(result=1) SENT (water test) ***
+[2026-08-11T17:59:59] TCP RX 8 HEX=0a00100018045000
+[2026-08-11T17:59:59] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 4), (10, 0, 0)]
+[2026-08-11T17:59:59] REQUEST ACTION=4
+[2026-08-11T17:59:59] TCP TX Action4 Water Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T17:59:59] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T17:59:59] *** ACTION 4 -> Response(result=1) SENT (water test) ***
+[2026-08-11T18:00:02] TCP RX 11 HEX=0a00100018cb01381a5000
+[2026-08-11T18:00:02] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 203), (7, 0, 26), (10, 0, 0)]
+[2026-08-11T18:00:02] REQUEST ACTION=203
+[2026-08-11T18:00:02] TCP TX Action203 Watered Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:00:02] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:00:02] *** ACTION 203 -> Response(result=1) SENT (water test) ***
+[2026-08-11T18:00:04] TCP RX 11 HEX=0a00100018cb01381b5000
+[2026-08-11T18:00:04] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 203), (7, 0, 27), (10, 0, 0)]
+[2026-08-11T18:00:04] REQUEST ACTION=203
+[2026-08-11T18:00:04] TCP TX Action203 Watered Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:00:04] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:00:04] *** ACTION 203 -> Response(result=1) SENT (water test) ***
+[2026-08-11T18:00:06] TCP RX 11 HEX=0a00100018cb0138245000
+[2026-08-11T18:00:06] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 203), (7, 0, 36), (10, 0, 0)]
+[2026-08-11T18:00:06] REQUEST ACTION=203
+[2026-08-11T18:00:06] TCP TX Action203 Watered Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:00:06] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:00:06] *** ACTION 203 -> Response(result=1) SENT (water test) ***
+[2026-08-11T18:00:09] TCP RX 6 HEX=0a001000186a
+[2026-08-11T18:00:09] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 106)]
+[2026-08-11T18:00:09] REQUEST ACTION=106
+[2026-08-11T18:00:09] TCP TX Action106 Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:00:09] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:00:09] *** ACTION 106 -> Response(result=1) SENT ***
+[2026-08-11T18:00:23] TCP RX 11 HEX=0a00100018ca0138174802
+[2026-08-11T18:00:23] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 202), (7, 0, 23), (9, 0, 2)]
+[2026-08-11T18:00:23] REQUEST ACTION=202
+[2026-08-11T18:00:23] *** ACTION 202: field=23, mower=2, duplicate=False, grass_count=1, farm_field.status="digged" ***
+[2026-08-11T18:00:23] *** ACTION 202 MOWED_FIELDS=[23] ***
+[2026-08-11T18:00:23] TCP TX Action202 Isolated Mow FarmField+MowMachine Response + 00 envelope: protobuf=26 wrapped=27frame=29
+[2026-08-11T18:00:23] TCP TX PREFIX=1b00 OPCODE=00 BODY_HEAD=08011a0a08173206646967676564320a080210002a0408001001
+[2026-08-11T18:00:23] *** ACTION 202 -> isolated mow state SENT ***
+[2026-08-11T18:00:26] TCP RX 11 HEX=0a00100018ca0138204802
+[2026-08-11T18:00:26] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 202), (7, 0, 32), (9, 0, 2)]
+[2026-08-11T18:00:26] REQUEST ACTION=202
+[2026-08-11T18:00:26] *** ACTION 202: field=32, mower=2, duplicate=False, grass_count=2, farm_field.status="digged" ***
+[2026-08-11T18:00:26] *** ACTION 202 MOWED_FIELDS=[23, 32] ***
+[2026-08-11T18:00:26] TCP TX Action202 Isolated Mow FarmField+MowMachine Response + 00 envelope: protobuf=26 wrapped=27frame=29
+[2026-08-11T18:00:26] TCP TX PREFIX=1b00 OPCODE=00 BODY_HEAD=08011a0a08203206646967676564320a080210002a0408001002
+[2026-08-11T18:00:26] *** ACTION 202 -> isolated mow state SENT ***
+[2026-08-11T18:00:29] TCP RX 6 HEX=0a001000186a
+[2026-08-11T18:00:29] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 106)]
+[2026-08-11T18:00:29] REQUEST ACTION=106
+[2026-08-11T18:00:29] TCP TX Action106 Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:00:29] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:00:29] *** ACTION 106 -> Response(result=1) SENT ***
+[2026-08-11T18:00:29] TCP RX 11 HEX=0a00100018ca0138214802
+[2026-08-11T18:00:29] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 202), (7, 0, 33), (9, 0, 2)]
+[2026-08-11T18:00:29] REQUEST ACTION=202
+[2026-08-11T18:00:29] *** ACTION 202: field=33, mower=2, duplicate=False, grass_count=3, farm_field.status="digged" ***
+[2026-08-11T18:00:29] *** ACTION 202 MOWED_FIELDS=[23, 32, 33] ***
+[2026-08-11T18:00:29] TCP TX Action202 Isolated Mow FarmField+MowMachine Response + 00 envelope: protobuf=26 wrapped=27frame=29
+[2026-08-11T18:00:29] TCP TX PREFIX=1b00 OPCODE=00 BODY_HEAD=08011a0a08213206646967676564320a080210002a0408001003
+[2026-08-11T18:00:29] *** ACTION 202 -> isolated mow state SENT ***
+[2026-08-11T18:00:34] TCP RX 8 HEX=0a00100018074802
+[2026-08-11T18:00:34] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 7), (9, 0, 2)]
+[2026-08-11T18:00:34] REQUEST ACTION=7
+[2026-08-11T18:00:34] TCP TX Action7 Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:00:34] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:00:34] *** ACTION 7 -> Response(result=1) SENT (market transition test) ***
+[2026-08-11T18:00:49] TCP RX 6 HEX=0a001000186a
+[2026-08-11T18:00:49] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 106)]
+[2026-08-11T18:00:49] REQUEST ACTION=106
+[2026-08-11T18:00:49] TCP TX Action106 Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:00:49] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:00:49] *** ACTION 106 -> Response(result=1) SENT ***
+[2026-08-11T18:01:10] TCP RX 6 HEX=0a001000186a
+[2026-08-11T18:01:10] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 106)]
+[2026-08-11T18:01:10] REQUEST ACTION=106
+[2026-08-11T18:01:10] TCP TX Action106 Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:01:10] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:01:10] *** ACTION 106 -> Response(result=1) SENT ***
+[2026-08-11T18:01:25] TCP RX 11 HEX=0a00100018ca0138184802
+[2026-08-11T18:01:25] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 202), (7, 0, 24), (9, 0, 2)]
+[2026-08-11T18:01:25] REQUEST ACTION=202
+[2026-08-11T18:01:25] *** ACTION 202: field=24, mower=2, duplicate=False, grass_count=4, farm_field.status="digged" ***
+[2026-08-11T18:01:25] *** ACTION 202 MOWED_FIELDS=[23, 24, 32, 33] ***
+[2026-08-11T18:01:25] TCP TX Action202 Isolated Mow FarmField+MowMachine Response + 00 envelope: protobuf=26 wrapped=27frame=29
+[2026-08-11T18:01:25] TCP TX PREFIX=1b00 OPCODE=00 BODY_HEAD=08011a0a08183206646967676564320a080210002a0408001004
+[2026-08-11T18:01:25] *** ACTION 202 -> isolated mow state SENT ***
+[2026-08-11T18:01:30] TCP RX 6 HEX=0a001000186a
+[2026-08-11T18:01:30] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 106)]
+[2026-08-11T18:01:30] REQUEST ACTION=106
+[2026-08-11T18:01:30] TCP TX Action106 Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:01:30] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:01:30] *** ACTION 106 -> Response(result=1) SENT ***
+[2026-08-11T18:01:50] TCP RX 6 HEX=0a001000186a
+[2026-08-11T18:01:50] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 106)]
+[2026-08-11T18:01:50] REQUEST ACTION=106
+[2026-08-11T18:01:50] TCP TX Action106 Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:01:50] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:01:50] *** ACTION 106 -> Response(result=1) SENT ***
+[2026-08-11T18:02:10] TCP RX 6 HEX=0a001000186a
+[2026-08-11T18:02:10] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 106)]
+[2026-08-11T18:02:10] REQUEST ACTION=106
+[2026-08-11T18:02:10] TCP TX Action106 Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:02:10] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:02:10] *** ACTION 106 -> Response(result=1) SENT ***
+[2026-08-11T18:02:30] TCP RX 6 HEX=0a001000186a
+[2026-08-11T18:02:30] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 106)]
+[2026-08-11T18:02:30] REQUEST ACTION=106
+[2026-08-11T18:02:30] TCP TX Action106 Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:02:30] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:02:30] *** ACTION 106 -> Response(result=1) SENT ***
+[2026-08-11T18:02:50] TCP RX 6 HEX=0a001000186a
+[2026-08-11T18:02:50] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 106)]
+[2026-08-11T18:02:50] REQUEST ACTION=106
+[2026-08-11T18:02:50] TCP TX Action106 Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:02:50] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:02:50] *** ACTION 106 -> Response(result=1) SENT ***
+[2026-08-11T18:03:04] TCP RX 11 HEX=0a00100018ca0138194802
+[2026-08-11T18:03:04] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 202), (7, 0, 25), (9, 0, 2)]
+[2026-08-11T18:03:04] REQUEST ACTION=202
+[2026-08-11T18:03:04] *** ACTION 202: field=25, mower=2, duplicate=False, grass_count=5, farm_field.status="digged" ***
+[2026-08-11T18:03:04] *** ACTION 202 MOWED_FIELDS=[23, 24, 25, 32, 33] ***
+[2026-08-11T18:03:04] TCP TX Action202 Isolated Mow FarmField+MowMachine Response + 00 envelope: protobuf=26 wrapped=27frame=29
+[2026-08-11T18:03:04] TCP TX PREFIX=1b00 OPCODE=00 BODY_HEAD=08011a0a08193206646967676564320a080210002a0408001005
+[2026-08-11T18:03:04] *** ACTION 202 -> isolated mow state SENT ***
+[2026-08-11T18:03:09] TCP RX 8 HEX=0a00100018074802
+[2026-08-11T18:03:09] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 7), (9, 0, 2)]
+[2026-08-11T18:03:09] REQUEST ACTION=7
+[2026-08-11T18:03:09] TCP TX Action7 Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:03:09] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:03:09] *** ACTION 7 -> Response(result=1) SENT (market transition test) ***
+[2026-08-11T18:03:10] TCP RX 6 HEX=0a001000186a
+[2026-08-11T18:03:10] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 106)]
+[2026-08-11T18:03:10] REQUEST ACTION=106
+[2026-08-11T18:03:10] TCP TX Action106 Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:03:10] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:03:10] *** ACTION 106 -> Response(result=1) SENT ***
+[2026-08-11T18:03:21] TCP RX 11 HEX=0a00100018cc0138176001
+[2026-08-11T18:03:21] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 204), (7, 0, 23), (12, 0, 1)]
+[2026-08-11T18:03:21] REQUEST ACTION=204
+[2026-08-11T18:03:21]
+[2026-08-11T18:03:21] !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+[2026-08-11T18:03:21] *** UNKNOWN ACTION -> TEST SUCCESS FALLBACK ***
+[2026-08-11T18:03:21] *** ACTION=204 ***
+[2026-08-11T18:03:21] !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+[2026-08-11T18:03:21] TCP TX Action204 Generic Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:03:21] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:03:21] *** ACTION 204 -> Response(result=1) SENT (GENERIC TEST FALLBACK) ***
+[2026-08-11T18:03:22] TCP RX 11 HEX=0a00100018cc0138206001
+[2026-08-11T18:03:22] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 204), (7, 0, 32), (12, 0, 1)]
+[2026-08-11T18:03:22] REQUEST ACTION=204
+[2026-08-11T18:03:22]
+[2026-08-11T18:03:22] !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+[2026-08-11T18:03:22] *** UNKNOWN ACTION -> TEST SUCCESS FALLBACK ***
+[2026-08-11T18:03:22] *** ACTION=204 ***
+[2026-08-11T18:03:22] !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+[2026-08-11T18:03:22] TCP TX Action204 Generic Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:03:22] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:03:22] *** ACTION 204 -> Response(result=1) SENT (GENERIC TEST FALLBACK) ***
+[2026-08-11T18:03:25] TCP RX 8 HEX=0a00100018045000
+[2026-08-11T18:03:25] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 4), (10, 0, 0)]
+[2026-08-11T18:03:25] REQUEST ACTION=4
+[2026-08-11T18:03:25] TCP TX Action4 Water Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:03:25] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:03:25] *** ACTION 4 -> Response(result=1) SENT (water test) ***
+[2026-08-11T18:03:29] TCP RX 11 HEX=0a00100018cb0138175000
+[2026-08-11T18:03:29] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 203), (7, 0, 23), (10, 0, 0)]
+[2026-08-11T18:03:29] REQUEST ACTION=203
+[2026-08-11T18:03:29] TCP TX Action203 Watered Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:03:29] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:03:29] *** ACTION 203 -> Response(result=1) SENT (water test) ***
+[2026-08-11T18:03:30] TCP RX 6 HEX=0a001000186a
+[2026-08-11T18:03:30] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 106)]
+[2026-08-11T18:03:30] REQUEST ACTION=106
+[2026-08-11T18:03:30] TCP TX Action106 Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:03:30] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:03:30] *** ACTION 106 -> Response(result=1) SENT ***
+[2026-08-11T18:03:31] TCP RX 11 HEX=0a00100018cb0138205000
+[2026-08-11T18:03:31] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 203), (7, 0, 32), (10, 0, 0)]
+[2026-08-11T18:03:31] REQUEST ACTION=203
+[2026-08-11T18:03:31] TCP TX Action203 Watered Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:03:31] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:03:31] *** ACTION 203 -> Response(result=1) SENT (water test) ***
+[2026-08-11T18:03:34] TCP RX 11 HEX=0a00100018cb0138215000
+[2026-08-11T18:03:34] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 203), (7, 0, 33), (10, 0, 0)]
+[2026-08-11T18:03:34] REQUEST ACTION=203
+[2026-08-11T18:03:34] TCP TX Action203 Watered Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:03:34] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:03:34] *** ACTION 203 -> Response(result=1) SENT (water test) ***
+[2026-08-11T18:03:36] TCP RX 11 HEX=0a00100018cb0138185000
+[2026-08-11T18:03:36] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 203), (7, 0, 24), (10, 0, 0)]
+[2026-08-11T18:03:36] REQUEST ACTION=203
+[2026-08-11T18:03:36] TCP TX Action203 Watered Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:03:36] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:03:36] *** ACTION 203 -> Response(result=1) SENT (water test) ***
+[2026-08-11T18:03:42] TCP RX 8 HEX=0a00100018045000
+[2026-08-11T18:03:42] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 4), (10, 0, 0)]
+[2026-08-11T18:03:42] REQUEST ACTION=4
+[2026-08-11T18:03:42] TCP TX Action4 Water Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:03:42] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:03:42] *** ACTION 4 -> Response(result=1) SENT (water test) ***
+[2026-08-11T18:03:46] TCP RX 11 HEX=0a00100018cb0138195000
+[2026-08-11T18:03:46] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 203), (7, 0, 25), (10, 0, 0)]
+[2026-08-11T18:03:46] REQUEST ACTION=203
+[2026-08-11T18:03:46] TCP TX Action203 Watered Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:03:46] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:03:46] *** ACTION 203 -> Response(result=1) SENT (water test) ***
+[2026-08-11T18:03:49] TCP RX 11 HEX=0a00100018ca0138224802
+[2026-08-11T18:03:49] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 202), (7, 0, 34), (9, 0, 2)]
+[2026-08-11T18:03:49] REQUEST ACTION=202
+[2026-08-11T18:03:49] *** ACTION 202: field=34, mower=2, duplicate=False, grass_count=6, farm_field.status="digged" ***
+[2026-08-11T18:03:49] *** ACTION 202 MOWED_FIELDS=[23, 24, 25, 32, 33, 34] ***
+[2026-08-11T18:03:49] TCP TX Action202 Isolated Mow FarmField+MowMachine Response + 00 envelope: protobuf=26 wrapped=27frame=29
+[2026-08-11T18:03:49] TCP TX PREFIX=1b00 OPCODE=00 BODY_HEAD=08011a0a08223206646967676564320a080210002a0408001006
+[2026-08-11T18:03:49] *** ACTION 202 -> isolated mow state SENT ***
+[2026-08-11T18:03:50] TCP RX 6 HEX=0a001000186a
+[2026-08-11T18:03:50] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 106)]
+[2026-08-11T18:03:50] REQUEST ACTION=106
+[2026-08-11T18:03:50] TCP TX Action106 Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:03:50] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:03:50] *** ACTION 106 -> Response(result=1) SENT ***
+[2026-08-11T18:03:52] TCP RX 11 HEX=0a00100018ca0138234802
+[2026-08-11T18:03:52] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 202), (7, 0, 35), (9, 0, 2)]
+[2026-08-11T18:03:52] REQUEST ACTION=202
+[2026-08-11T18:03:52] *** ACTION 202: field=35, mower=2, duplicate=False, grass_count=7, farm_field.status="digged" ***
+[2026-08-11T18:03:52] *** ACTION 202 MOWED_FIELDS=[23, 24, 25, 32, 33, 34, 35] ***
+[2026-08-11T18:03:52] TCP TX Action202 Isolated Mow FarmField+MowMachine Response + 00 envelope: protobuf=26 wrapped=27frame=29
+[2026-08-11T18:03:52] TCP TX PREFIX=1b00 OPCODE=00 BODY_HEAD=08011a0a08233206646967676564320a080210002a0408001007
+[2026-08-11T18:03:52] *** ACTION 202 -> isolated mow state SENT ***
+[2026-08-11T18:03:55] TCP RX 11 HEX=0a00100018ca01381b4802
+[2026-08-11T18:03:55] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 202), (7, 0, 27), (9, 0, 2)]
+[2026-08-11T18:03:55] REQUEST ACTION=202
+[2026-08-11T18:03:55] *** ACTION 202: field=27, mower=2, duplicate=False, grass_count=8, farm_field.status="digged" ***
+[2026-08-11T18:03:55] *** ACTION 202 MOWED_FIELDS=[23, 24, 25, 27, 32, 33, 34, 35] ***
+[2026-08-11T18:03:55] TCP TX Action202 Isolated Mow FarmField+MowMachine Response + 00 envelope: protobuf=26 wrapped=27frame=29
+[2026-08-11T18:03:55] TCP TX PREFIX=1b00 OPCODE=00 BODY_HEAD=08011a0a081b3206646967676564320a080210002a0408001008
+[2026-08-11T18:03:55] *** ACTION 202 -> isolated mow state SENT ***
+[2026-08-11T18:04:00] TCP RX 8 HEX=0a00100018074802
+[2026-08-11T18:04:00] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 7), (9, 0, 2)]
+[2026-08-11T18:04:00] REQUEST ACTION=7
+[2026-08-11T18:04:00] TCP TX Action7 Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:04:00] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:04:00] *** ACTION 7 -> Response(result=1) SENT (market transition test) ***
+[2026-08-11T18:04:10] TCP RX 6 HEX=0a001000186a
+[2026-08-11T18:04:10] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 106)]
+[2026-08-11T18:04:10] REQUEST ACTION=106
+[2026-08-11T18:04:10] TCP TX Action106 Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:04:10] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:04:10] *** ACTION 106 -> Response(result=1) SENT ***
+[2026-08-11T18:04:30] TCP RX 6 HEX=0a001000186a
+[2026-08-11T18:04:30] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 106)]
+[2026-08-11T18:04:30] REQUEST ACTION=106
+[2026-08-11T18:04:30] TCP TX Action106 Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:04:30] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:04:30] *** ACTION 106 -> Response(result=1) SENT ***
+[2026-08-11T18:04:50] TCP RX 6 HEX=0a001000186a
+[2026-08-11T18:04:50] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 106)]
+[2026-08-11T18:04:50] REQUEST ACTION=106
+[2026-08-11T18:04:50] TCP TX Action106 Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:04:50] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:04:50] *** ACTION 106 -> Response(result=1) SENT ***
+[2026-08-11T18:05:10] TCP RX 6 HEX=0a001000186a
+[2026-08-11T18:05:10] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 106)]
+[2026-08-11T18:05:10] REQUEST ACTION=106
+[2026-08-11T18:05:10] TCP TX Action106 Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:05:10] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:05:10] *** ACTION 106 -> Response(result=1) SENT ***
+[2026-08-11T18:05:30] TCP RX 6 HEX=0a001000186a
+[2026-08-11T18:05:30] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 106)]
+[2026-08-11T18:05:30] REQUEST ACTION=106
+[2026-08-11T18:05:30] TCP TX Action106 Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:05:30] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:05:30] *** ACTION 106 -> Response(result=1) SENT ***
+[2026-08-11T18:05:50] TCP RX 6 HEX=0a001000186a
+[2026-08-11T18:05:50] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 106)]
+[2026-08-11T18:05:50] REQUEST ACTION=106
+[2026-08-11T18:05:50] TCP TX Action106 Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:05:50] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:05:50] *** ACTION 106 -> Response(result=1) SENT ***
+[2026-08-11T18:06:10] TCP RX 6 HEX=0a001000186a
+[2026-08-11T18:06:10] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 106)]
+[2026-08-11T18:06:10] REQUEST ACTION=106
+[2026-08-11T18:06:10] TCP TX Action106 Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:06:10] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:06:10] *** ACTION 106 -> Response(result=1) SENT ***
+[2026-08-11T18:06:30] TCP RX 6 HEX=0a001000186a
+[2026-08-11T18:06:30] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 106)]
+[2026-08-11T18:06:30] REQUEST ACTION=106
+[2026-08-11T18:06:30] TCP TX Action106 Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:06:30] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:06:30] *** ACTION 106 -> Response(result=1) SENT ***
+[2026-08-11T18:06:50] TCP RX 6 HEX=0a001000186a
+[2026-08-11T18:06:50] PROTO=[(1, 2, "''"), (2, 0, 0), (3, 0, 106)]
+[2026-08-11T18:06:50] REQUEST ACTION=106
+[2026-08-11T18:06:50] TCP TX Action106 Response + 00 envelope: protobuf=2 wrapped=3 frame=5
+[2026-08-11T18:06:50] TCP TX PREFIX=0300 OPCODE=00 BODY_HEAD=0801
+[2026-08-11T18:06:50] *** ACTION 106 -> Response(result=1) SENT ***
